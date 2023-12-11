@@ -15,23 +15,29 @@ class Computer {
   /// Returns `true` if `Computer` turned on and `false` otherwise
   bool get isRunning => _computeDelegate.isRunning;
 
-  /// Turn on `Computer`, `workersCount` should not be less than 1, default is 2
-  /// `verbose` is false by default, enabling it leads to logging of every operation
+  /// Turn on `Computer`
+  /// - `workersCount` should not be less than 1, default is 2
+  /// - `verbose` logging of every operation
   Future<void> turnOn({
-    /// Number of workers to create
     int workersCount = 2,
-    /// Whether to log every operation
     bool verbose = false,
   }) async {
+    if (workersCount < 1) {
+      throw ArgumentError.value(
+        workersCount,
+        'workersCount',
+        'should be greater than 0',
+      );
+    }
     return _computeDelegate.turnOn(
       workersCount: workersCount,
       verbose: verbose,
     );
   }
 
-  /// Executes function `fn` with passed `param`. Takes only top-level functions and static methods.
-  /// `P` is `param` type, `R` is function return type
-  /// `taskName` is a identifier for the task that's only used during logging
+  /// Executes function [fn] with passed [param]. 
+  /// 
+  /// The fn will be execute after [Computer] turned on.
   Future<R> compute<P, R>(
     Function fn, {
     P? param,
@@ -42,6 +48,7 @@ class Computer {
 
   /// Turn off `Computer`
   Future<void> turnOff() async {
+    if (!isRunning) return;
     return _computeDelegate.turnOff();
   }
 }

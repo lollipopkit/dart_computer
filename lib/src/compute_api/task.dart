@@ -1,8 +1,8 @@
 import 'dart:isolate';
 
-class Task {
+class Task<T> {
   final Function task;
-  final dynamic param;
+  final T? param;
   final String? name;
 
   final Capability capability;
@@ -10,8 +10,8 @@ class Task {
   Task({required this.task, required this.capability, this.param, this.name});
 }
 
-class TaskResult {
-  final dynamic result;
+class TaskResult<T> {
+  final T? result;
   final Capability capability;
   final String? name;
 
