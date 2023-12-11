@@ -4,8 +4,8 @@ description: Easy to use pool of concurrent workers with compute() like API.
 homepage: https://github.com/91team/computer
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <4.0.0"
 
 dev_dependencies:
   test: ^1.16.5
-  lints: ^1.0.1
+  lints: ^3.0.0

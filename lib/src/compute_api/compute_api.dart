@@ -56,9 +56,9 @@ class ComputeAPI {
   Future<R> compute<P, R>(
     Function fn, {
     P? param,
-    String? taskName = "Unknown",
+    required String taskName,
   }) async {
-    _logger?.log('Started computation for task ${taskName ?? ""}');
+    _logger?.log('Started computation for task $taskName');
     final taskCapability = Capability();
     final taskCompleter = Completer<R>();
 
@@ -74,14 +74,14 @@ class ComputeAPI {
     final freeWorker = _findFreeWorker();
 
     if (freeWorker == null) {
-      _logger?.log('No free workers, add task ${taskName ?? ""} to the queue');
+      _logger?.log('No free workers, add task $taskName to the queue');
       if (_workers.length == 1) {
         _workers.single.execute(task);
       } else {
         _taskQueue.add(task);
       }
     } else {
-      _logger?.log('Found free worker, executing ${taskName ?? ""} on it');
+      _logger?.log('Found free worker, executing $taskName on it');
       freeWorker.execute(task);
     }
 

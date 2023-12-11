@@ -6,13 +6,11 @@ import 'compute_api/compute_api.dart';
 class Computer {
   final _computeDelegate = ComputeAPI();
 
-  factory Computer.shared() => _singleton;
+  static Computer get shared => _singleton;
 
-  factory Computer.create() => Computer._internal();
+  Computer();
 
-  Computer._internal();
-
-  static final _singleton = Computer._internal();
+  static final _singleton = Computer();
 
   /// Returns `true` if `Computer` turned on and `false` otherwise
   bool get isRunning => _computeDelegate.isRunning;
@@ -20,7 +18,9 @@ class Computer {
   /// Turn on `Computer`, `workersCount` should not be less than 1, default is 2
   /// `verbose` is false by default, enabling it leads to logging of every operation
   Future<void> turnOn({
+    /// Number of workers to create
     int workersCount = 2,
+    /// Whether to log every operation
     bool verbose = false,
   }) async {
     return _computeDelegate.turnOn(
@@ -35,7 +35,7 @@ class Computer {
   Future<R> compute<P, R>(
     Function fn, {
     P? param,
-    String? taskName,
+    String taskName = '_',
   }) async {
     return _computeDelegate.compute<P, R>(fn, param: param, taskName: taskName);
   }
