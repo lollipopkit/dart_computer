@@ -9,16 +9,9 @@ Future<void> main() async {
     workersCount: 2,
     verbose: true,
   );
-  try {
-    final a = await computer.compute<int, int>(fib, param: null);
-    print('Calculated a: $a');
-  } catch (error) {
-    print(error);
-    print('Task a failed');
-  }
-  final b = await computer.compute<int, int>(asyncFib, param: 40);
+  final b = await computer.start<int, int>(asyncFib, param: 40);
   print('Calculated b: $b');
-  final c = await computer.compute<int, int>(fib, param: 30);
+  final c = await computer.start<int, int>(fib, param: 30);
   print('Calculated c: $c');
 
   await computer.turnOff();

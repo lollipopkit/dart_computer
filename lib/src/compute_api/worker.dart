@@ -74,7 +74,7 @@ class Worker {
     });
   }
 
-  void execute(Task task) {
+  void execute(TaskBase task) {
     status = WorkerStatus.processing;
     _sendPort.send(task);
   }
@@ -92,19 +92,37 @@ Future<void> isolateEntryPoint(IsolateInitParams params) async {
 
   sendPort.send(receivePort.sendPort);
 
-  await for (final task in receivePort.cast<Task>()) {
-    try {
-      final computationResult =
-          task.param != null ? await task.task(task.param) : await task.task();
+  await for (final task in receivePort) {
+    switch (task) {
+      case final Task task:
+        try {
+          final computationResult = await task.task(task.param);
 
-      final result = TaskResult(
-        result: computationResult,
-        capability: task.capability,
-        name: task.name,
-      );
-      sendPort.send(result);
-    } catch (error) {
-      sendPort.send(RemoteExecutionError(error.toString(), task.capability));
+          final result = TaskResult(
+            result: computationResult,
+            capability: task.capability,
+            name: task.name,
+          );
+
+          sendPort.send(result);
+        } catch (error) {
+          sendPort.send(RemoteExecutionError('$error', task.capability));
+        }
+        break;
+      case final TaskNoParam task:
+        try {
+          final computationResult = await task.task();
+
+          final result = TaskResult(
+            result: computationResult,
+            capability: task.capability,
+            name: task.name,
+          );
+
+          sendPort.send(result);
+        } catch (error) {
+          sendPort.send(RemoteExecutionError('$error', task.capability));
+        }
     }
   }
 }

@@ -8,10 +8,12 @@ import 'package:computer/src/logger.dart';
 import 'task.dart';
 import 'worker.dart';
 
+typedef ComputerFunc<P, R> = FutureOr<R> Function(P);
+
 class ComputeAPI {
   final _workers = <Worker>[];
 
-  final _taskQueue = Queue<Task>();
+  final _taskQueue = Queue<TaskBase>();
 
   final _activeTaskCompleters = <Capability, Completer>{};
 
@@ -54,8 +56,8 @@ class ComputeAPI {
   }
 
   Future<R> compute<P, R>(
-    Function fn, {
-    P? param,
+    ComputerFunc<P, R> fn, {
+    required P param,
     required String taskName,
   }) async {
     _logger?.log('Started computation for task $taskName');
@@ -65,6 +67,40 @@ class ComputeAPI {
     final task = Task(
       task: fn,
       param: param,
+      name: taskName,
+      capability: taskCapability,
+    );
+
+    _activeTaskCompleters[taskCapability] = taskCompleter;
+
+    final freeWorker = _findFreeWorker();
+
+    if (freeWorker == null) {
+      _logger?.log('No free workers, add task $taskName to the queue');
+      if (_workers.length == 1) {
+        _workers.single.execute(task);
+      } else {
+        _taskQueue.add(task);
+      }
+    } else {
+      _logger?.log('Found free worker, executing $taskName on it');
+      freeWorker.execute(task);
+    }
+
+    final result = await taskCompleter.future;
+    return result;
+  }
+
+  Future<R> computeNoParam<R>(
+    FutureOr<R> Function() fn, {
+    required String taskName,
+  }) async {
+    _logger?.log('Started computation for task $taskName');
+    final taskCapability = Capability();
+    final taskCompleter = Completer<R>();
+
+    final task = TaskNoParam(
+      task: fn,
       name: taskName,
       capability: taskCapability,
     );

@@ -38,12 +38,22 @@ class Computer {
   /// Executes function [fn] with passed [param]. 
   /// 
   /// The fn will be execute after [Computer] turned on.
-  Future<R> compute<P, R>(
-    Function fn, {
-    P? param,
+  Future<R> start<P, R>(
+    ComputerFunc<P, R> fn, {
+    required P param,
     String taskName = '_',
   }) async {
     return _computeDelegate.compute<P, R>(fn, param: param, taskName: taskName);
+  }
+
+  /// Executes function [fn] with no params.
+  /// 
+  /// The fn will be execute after [Computer] turned on.
+  Future<R> startNoParam<R>(
+    FutureOr<R> Function() fn, {
+    String taskName = '_',
+  }) async {
+    return _computeDelegate.computeNoParam<R>(fn, taskName: taskName);
   }
 
   /// Turn off `Computer`

@@ -1,13 +1,31 @@
+import 'dart:async';
 import 'dart:isolate';
 
-class Task<T> {
+abstract final class TaskBase {
   final Function task;
-  final T? param;
   final String? name;
-
   final Capability capability;
 
-  Task({required this.task, required this.capability, this.param, this.name});
+  const TaskBase({required this.task, required this.capability, this.name});
+}
+
+final class Task<P, R> extends TaskBase {
+  final P? param;
+
+  const Task({
+    required FutureOr<R> Function(P) task,
+    required super.capability,
+    this.param,
+    required super.name,
+  }) : super(task: task);
+}
+
+final class TaskNoParam<R> extends TaskBase {
+  const TaskNoParam({
+    required FutureOr<R> Function() task,
+    required super.capability,
+    required super.name,
+  }) : super(task: task);
 }
 
 class TaskResult<T> {
@@ -15,5 +33,5 @@ class TaskResult<T> {
   final Capability capability;
   final String? name;
 
-  TaskResult({required this.result, required this.capability, this.name});
+  const TaskResult({required this.result, required this.capability, this.name});
 }
