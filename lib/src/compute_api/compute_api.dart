@@ -56,8 +56,8 @@ class ComputeAPI {
   }
 
   Future<R> compute<P, R>(
-    ComputerFunc<P, R> fn, {
-    required P param,
+    ComputerFunc<P, R> fn,
+    P param, {
     required String taskName,
   }) async {
     _logger?.log('Started computation for task $taskName');
